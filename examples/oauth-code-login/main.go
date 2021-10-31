@@ -8,15 +8,14 @@ import (
 )
 
 func main() {
-	client, _ := reddit.NewTokenClient(
+	config := reddit.Oauth2Config(
 		"YIB6CeMwOJ9fvsmh4fIZjw",
 		"JsIpBV3Mz0V7Ag6xkVOAjAeoa12ZQw",
 		"http://localhost:1337/auth/callback",
 		[]string{"identity"},
-		reddit.WithUserAgent("Go-Reddit Oauth2 (by /u/The1RGood)"),
 	)
 
-	url, _ := client.AuthorizeURL("test")
+	url := config.AuthCodeURL("test")
 	println(url)
 
 	http.HandleFunc("/auth/callback", func(w http.ResponseWriter, r *http.Request) {
@@ -25,10 +24,7 @@ func main() {
 
 		// Create a new client in the request context
 		userClient, _ := reddit.NewTokenClient(
-			"YIB6CeMwOJ9fvsmh4fIZjw",
-			"JsIpBV3Mz0V7Ag6xkVOAjAeoa12ZQw",
-			"http://localhost:1337/auth/callback",
-			[]string{"identity"},
+			config,
 			reddit.WithUserAgent("Go-Reddit Oauth2 (by /u/The1RGood)"),
 		)
 
