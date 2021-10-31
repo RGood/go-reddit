@@ -145,13 +145,10 @@ func newClient() *Client {
 	return client
 }
 
-func NewTokenClient(clientID, clientSecret, callback string, scopes []string, opts ...Opt) (*Client, error) {
+func NewTokenClient(config *oauth2.Config, opts ...Opt) (*Client, error) {
 	client := newClient()
 
-	client.Oauth2Config.ClientID = clientID
-	client.Oauth2Config.ClientSecret = clientSecret
-	client.Oauth2Config.RedirectURL = callback
-	client.Oauth2Config.Scopes = scopes
+	client.Oauth2Config = config
 
 	for _, opt := range opts {
 		if err := opt(client); err != nil {
@@ -294,13 +291,19 @@ func (c *Client) isTokenClient() bool {
 	return false
 }
 
-func (c *Client) AuthorizeURL(state string) (string, bool) {
-	if c.isTokenClient() {
-		return c.Oauth2Config.AuthCodeURL(state), true
+func Oauth2Config(clientID, clientSecret, callback string, scopes []string) *oauth2.Config {
+	return &oauth2.Config{
+		ClientID:     clientID,
+		ClientSecret: clientSecret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  defaultAuthURL,
+			TokenURL: defaultTokenURL,
+
+			AuthStyle: oauth2.AuthStyleAutoDetect,
+		},
+		RedirectURL: callback,
+		Scopes:      scopes,
 	}
-
-	return "", false
-
 }
 
 func (c *Client) Authorize(code string) (bool, error) {
