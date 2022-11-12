@@ -29,6 +29,21 @@ func (s *ListingsService) Get(ctx context.Context, ids ...string) ([]*Post, []*C
 	return l.Posts(), l.Comments(), l.Subreddits(), resp, nil
 }
 
+// GetSubreddits returns subreddits by name.
+func (s *ListingsService) GetSubreddits(ctx context.Context, srNames ...string) ([]*Subreddit, *Response, error) {
+	path := "api/info"
+	params := struct {
+		SrNames []string `url:"sr_name,omitempty,comma"`
+	}{srNames}
+
+	l, resp, err := s.client.getListing(ctx, path, params)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return l.Subreddits(), resp, nil
+}
+
 // GetPosts returns posts from their full IDs.
 func (s *ListingsService) GetPosts(ctx context.Context, ids ...string) ([]*Post, *Response, error) {
 	converted_ids := []string{}
