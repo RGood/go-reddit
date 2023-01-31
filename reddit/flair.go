@@ -195,6 +195,26 @@ func (s *FlairService) ListUserFlairs(ctx context.Context, subreddit string) ([]
 	return root.UserFlairs, resp, nil
 }
 
+// GetUserFlair returns the flair an individual user in the subreddit.
+func (s *FlairService) GetUserFlair(ctx context.Context, subreddit, username string) ([]*FlairSummary, *Response, error) {
+	path := fmt.Sprintf("r/%s/api/flairlist?name=%s", subreddit, username)
+
+	req, err := s.client.NewRequest(http.MethodGet, path, nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	root := new(struct {
+		UserFlairs []*FlairSummary `json:"users"`
+	})
+	resp, err := s.client.Do(ctx, req, root)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return root.UserFlairs, resp, nil
+}
+
 // Configure the subreddit's flair settings.
 func (s *FlairService) Configure(ctx context.Context, subreddit string, request *FlairConfigureRequest) (*Response, error) {
 	if request == nil {
