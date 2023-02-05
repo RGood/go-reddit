@@ -51,7 +51,7 @@ func (s *ListingsService) GetPosts(ctx context.Context, ids ...string) ([]*Post,
 		converted_ids = append(converted_ids, "t3_"+id)
 	}
 	path := fmt.Sprintf("by_id/%s", strings.Join(converted_ids, ","))
-	l, resp, err := s.client.getListing(ctx, path, nil)
+	l, resp, err := s.client.getListing(ctx, path, ListOptions{Limit: 100})
 	if err != nil {
 		return nil, resp, err
 	}
